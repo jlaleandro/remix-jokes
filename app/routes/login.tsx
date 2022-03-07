@@ -2,12 +2,16 @@ import type { ActionFunction, LinksFunction } from "remix";
 import {
   useActionData,
   json,
-  Link,
   useSearchParams,
+  Link,
 } from "remix";
 
 import { db } from "~/utils/db.server";
-import { createUserSession, login } from "~/utils/session.server";
+import {
+  createUserSession,
+  login,
+  register,
+} from "~/utils/session.server";
 import stylesUrl from "~/styles/login.css";
 
 export const links: LinksFunction = () => {
@@ -72,16 +76,13 @@ export const action: ActionFunction = async ({
   switch (loginType) {
     case "login": {
       const user = await login({ username, password });
-      console.log({ user });
       if (!user) {
         return badRequest({
           fields,
           formError: `Username/Password combination is incorrect`,
         });
       }
-      // if there is a user, create their session and redirect to /jokes
       return createUserSession(user.id, redirectTo);
-
     }
     case "register": {
       const userExists = await db.user.findFirst({
@@ -93,12 +94,14 @@ export const action: ActionFunction = async ({
           formError: `User with username ${username} already exists`,
         });
       }
-      // create the user
-      // create their session and redirect to /jokes
-      return badRequest({
-        fields,
-        formError: "Not implemented",
-      });
+      const user = await register({ username, password });
+      if (!user) {
+        return badRequest({
+          fields,
+          formError: `Something went wrong trying to create a new user.`,
+        });
+      }
+      return createUserSession(user.id, redirectTo);
     }
     default: {
       return badRequest({
