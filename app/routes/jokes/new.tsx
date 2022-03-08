@@ -16,9 +16,11 @@ import {
 export const loader: LoaderFunction = async ({
   request,
 }) => {
+
   const userId = await getUserId(request);
   if (!userId) {
-    throw new Response("Unauthorized", { status: 401 });
+    return redirect("/login");
+    //throw new Response("Unauthorized", { status: 401 });
   }
   return {};
 };
@@ -157,12 +159,16 @@ export function CatchBoundary() {
   const caught = useCatch();
 
   if (caught.status === 401) {
-    return (
-      <div className="error-container">
-        <p>You must be logged in to create a joke.</p>
-        <Link to="/login">Login</Link>
-      </div>
-    );
+    return redirect("/");
+    // return (
+
+    //   <div className="error-container">
+    //     <p>You must be logged in to create a joke.</p>
+    //     <Link to="/login">Login</Link>
+    //   </div>
+
+
+    // );
   }
 }
 
@@ -171,5 +177,6 @@ export function ErrorBoundary() {
     <div className="error-container">
       Something unexpected went wrong. Sorry about that.
     </div>
+
   );
 }
