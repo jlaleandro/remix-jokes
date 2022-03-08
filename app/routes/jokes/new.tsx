@@ -3,8 +3,7 @@ import {
   useActionData,
   redirect,
   json,
-  useCatch,
-  Link,
+  useCatch
 } from "remix";
 
 import { db } from "~/utils/db.server";
