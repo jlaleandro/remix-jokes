@@ -1,4 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "remix";
+import { ActionFunction, Link, LoaderFunction } from "remix";
 import {
   useActionData,
   redirect,
@@ -158,16 +158,15 @@ export function CatchBoundary() {
   const caught = useCatch();
 
   if (caught.status === 401) {
-    return redirect("/");
-    // return (
+    return (
 
-    //   <div className="error-container">
-    //     <p>You must be logged in to create a joke.</p>
-    //     <Link to="/login">Login</Link>
-    //   </div>
+      <div className="error-container">
+        <p>You must be logged in to create a joke.</p>
+        <Link to="/login">Login</Link>
+      </div>
 
 
-    // );
+    );
   }
 }
 
