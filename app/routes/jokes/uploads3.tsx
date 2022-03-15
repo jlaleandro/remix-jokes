@@ -3,27 +3,11 @@ import { ActionFunction, Form, Link, redirect } from "remix";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { S3Client } from "@aws-sdk/client-s3";
+
 import * as path from "path";
 import * as fs from "fs";
 
-const dest = path.resolve(__dirname, '..', 'tmp', 'uploads');
 const client = new S3Client({ region: "sa-east-1" });
-const file = dest + "/vivo.pdf"; // Path to and name of object. For example '../myFiles/index.js'.
-const fileStream = fs.createReadStream(file);
-
-const uploadParams = {
-  Bucket: "tinuvens-enfs",
-
-  acl: "public-read",
-
-  ContentType: 'application/pdf',
-
-  // Add the required 'Key' parameter using the 'path' module.
-  Key: "upload_pdf/" + path.basename(file),
-  //   // Add the required 'Body' parameter
-  Body: fileStream,
-};
-
 
 export const action: ActionFunction = async ({
   request,
@@ -31,42 +15,42 @@ export const action: ActionFunction = async ({
 
   const formData = await unstable_parseMultipartFormData(
     request,
-    uploadHandler // <-- we'll look at this deeper next
+    uploadHandler
   );
-  // the returned value for the file field is whatever our uploadHandler returns.
-  // Let's imagine we're uploading the avatar to s3,
-  // so our uploadHandler returns the URL.
 
+  //uploadHandler retorna informações do arquivo
+  //upload no servidor
   const avatarUrl = formData.get("avatar");
-
   let arquivo: any =
   {
     filepath: String,
     type: String,
     name: String,
   };
-
   arquivo = avatarUrl;
 
-  console.log("variáveis de retorno do upload local")
-  console.log(arquivo.filepath);
-  console.log(arquivo.type);
-  console.log(arquivo.name);
+  //upload aws s3
+  const fileStream = fs.createReadStream(arquivo.filepath);
+  const uploadParams = {
+    Bucket: "tinuvens-enfs",
+    acl: "public-read",
+    ContentType: arquivo.type,
+    Key: "upload_pdf/" + arquivo.name,
+    Body: fileStream,
+  };
 
   const data = await client.send(new PutObjectCommand(uploadParams));
   console.log("Success", data);
 
   // update the currently logged in user's avatar in our database
-  //await updateUserAvatar(request, avatarUrl);
 
-  // success! Redirect to account page
   return redirect(".");
 };
 
 
 const uploadHandler = unstable_createFileUploadHandler({
   maxFileSize: 5_000_000,
-  directory: "./tmp/uploads",
+  directory: path.resolve(__dirname, '..', 'tmp', 'uploads'),
   file: ({ filename }) => filename,
 });
 
