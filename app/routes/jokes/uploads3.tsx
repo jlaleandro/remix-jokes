@@ -6,18 +6,10 @@ import { S3Client } from "@aws-sdk/client-s3";
 import * as path from "path";
 import * as fs from "fs";
 
+const dest = path.resolve(__dirname, '..', 'tmp', 'uploads');
 const client = new S3Client({ region: "sa-east-1" });
-
-
-//console.log(' linha 11 client' + client.config)
-
-const file = "./tmp/uploads/vivo.pdf"; // Path to and name of object. For example '../myFiles/index.js'.
-//console.log(file)
-
+const file = dest + "/vivo.pdf"; // Path to and name of object. For example '../myFiles/index.js'.
 const fileStream = fs.createReadStream(file);
-
-//console.log(fileStream)
-console.log("alollll " + path.basename(file));
 
 const uploadParams = {
   Bucket: "tinuvens-enfs",
@@ -31,22 +23,35 @@ const uploadParams = {
   //   // Add the required 'Body' parameter
   Body: fileStream,
 };
-console.log(uploadParams)
+
 
 export const action: ActionFunction = async ({
   request,
 }) => {
+
   const formData = await unstable_parseMultipartFormData(
     request,
     uploadHandler // <-- we'll look at this deeper next
   );
-
   // the returned value for the file field is whatever our uploadHandler returns.
   // Let's imagine we're uploading the avatar to s3,
   // so our uploadHandler returns the URL.
+
   const avatarUrl = formData.get("avatar");
-  //console.log(`Avatar aqui.... `)
-  //console.log(avatarUrl)
+
+  let arquivo: any =
+  {
+    filepath: String,
+    type: String,
+    name: String,
+  };
+
+  arquivo = avatarUrl;
+
+  console.log("variáveis de retorno do upload local")
+  console.log(arquivo.filepath);
+  console.log(arquivo.type);
+  console.log(arquivo.name);
 
   const data = await client.send(new PutObjectCommand(uploadParams));
   console.log("Success", data);
@@ -57,6 +62,7 @@ export const action: ActionFunction = async ({
   // success! Redirect to account page
   return redirect(".");
 };
+
 
 const uploadHandler = unstable_createFileUploadHandler({
   maxFileSize: 5_000_000,
