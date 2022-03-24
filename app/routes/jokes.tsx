@@ -75,9 +75,17 @@ export default function JokesRoute() {
                 </li>
               ))}
             </ul>
-            <Link to="new" className="button">
-              Add your own
-            </Link>
+            <div>
+              <Link to="new" className="button">
+                Add your own
+              </Link>
+            </div>
+            <p>Teste de evenvio arquivos:</p>
+            <div >
+              <Link to="uploads3" className="button">
+                Enviar   AWS
+              </Link>
+            </div>
           </div>
           <div className="jokes-outlet">
             <Outlet />

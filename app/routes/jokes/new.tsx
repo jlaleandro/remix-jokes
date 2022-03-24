@@ -18,9 +18,10 @@ export const loader: LoaderFunction = async ({
 
   const userId = await getUserId(request);
   if (!userId) {
-    return redirect("/login");
-    //throw new Response("Unauthorized", { status: 401 });
+    //return redirect("/login");
+    throw new Response("Unauthorized", { status: 401 });
   }
+
   return {};
 };
 
@@ -54,6 +55,7 @@ const badRequest = (data: ActionData) =>
 export const action: ActionFunction = async ({
   request,
 }) => {
+
   const userId = await requireUserId(request);
   const form = await request.formData();
   const name = form.get("name");
@@ -173,7 +175,7 @@ export function CatchBoundary() {
 export function ErrorBoundary() {
   return (
     <div className="error-container">
-      Something unexpected went wrong. Sorry about that.
+      ErrorBoundary, Something unexpected went wrong. Sorry about that.
     </div>
 
   );
